@@ -56,8 +56,14 @@ public class Sessao {
     @JoinColumn(name = "sala_id", nullable = false)
     private Sala sala;
 
-    // Horário de término, útil para a verificação de conflito
     public LocalDateTime getDataHoraFim() {
         return dataHora == null ? null : dataHora.plusMinutes(duracaoMin);
     }
+    // Status automatico para exibição (não vira coluna)
+    public String getStatusExibicao() {
+        if (status == StatusSessao.AGENDADA && dataHora != null && dataHora.isBefore(LocalDateTime.now())) {
+        return "PENDENTE";
+    }
+    return status == null ? "" : status.name();
+}
 }

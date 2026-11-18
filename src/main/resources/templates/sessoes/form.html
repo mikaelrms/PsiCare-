@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sessão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <h1 th:text="${sessao.id == null} ? 'Nova sessão' : 'Editar sessão'"></h1>
+
+    <form th:action="@{/sessoes/salvar}" th:object="${sessao}" method="post" class="mt-3" style="max-width: 550px">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="mb-3">
+            <label class="form-label">Paciente</label>
+            <select th:field="*{paciente.id}" class="form-select"
+                    th:classappend="${#fields.hasErrors('paciente')} ? 'is-invalid'">
+                <option value="">Selecione...</option>
+                <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nome}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{paciente}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Profissional</label>
+            <select id="profissional" th:field="*{profissional.id}" class="form-select"
+                    th:classappend="${#fields.hasErrors('profissional')} ? 'is-invalid'">
+                <option value="">Selecione...</option>
+                <option th:each="p : ${profissionais}" th:value="${p.id}"
+                        th:attr="data-valor=${p.valorSessao}"
+                        th:text="${p.nome + ' (' + p.tipo + ')'}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{profissional}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Sala</label>
+            <select th:field="*{sala.id}" class="form-select"
+                    th:classappend="${#fields.hasErrors('sala')} ? 'is-invalid'">
+                <option value="">Selecione...</option>
+                <option th:each="s : ${salas}" th:value="${s.id}" th:text="${s.nome}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{sala}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Data e hora</label>
+            <input type="datetime-local" th:field="*{dataHora}" class="form-control"
+                   th:classappend="${#fields.hasErrors('dataHora')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{dataHora}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Duração (minutos)</label>
+            <input type="number" th:field="*{duracaoMin}" class="form-control"
+                   th:classappend="${#fields.hasErrors('duracaoMin')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{duracaoMin}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Valor (R$) <span class="text-muted">(preenchido pelo profissional)</span></label>
+            <input type="number" step="0.01" id="valor" th:field="*{valor}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select th:field="*{status}" class="form-select">
+                <option th:each="st : ${statusList}" th:value="${st}" th:text="${st}"></option>
+            </select>
+        </div>
+
+        <div class="form-check mb-3">
+            <input type="checkbox" th:field="*{pago}" class="form-check-input" id="pago">
+            <label class="form-check-label" for="pago">Pago</label>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Observação / evolução</label>
+            <textarea th:field="*{observacao}" class="form-control" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="/sessoes" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <!-- Preenchimento automático do valor ao escolher o profissional -->
+    <script>
+        const selectProf = document.getElementById('profissional');
+        const campoValor = document.getElementById('valor');
+        selectProf.addEventListener('change', function () {
+            const opcao = selectProf.options[selectProf.selectedIndex];
+            campoValor.value = opcao.dataset.valor || '';
+        });
+    </script>
+</body>
+</html>
